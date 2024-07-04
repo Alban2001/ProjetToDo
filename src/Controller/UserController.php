@@ -7,11 +7,12 @@ use App\Form\UserType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class UserController extends AbstractController
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly UserPasswordHasherInterface $passwordHasher)
     {
 
     }
@@ -31,7 +32,7 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $password = $this->get('security.password_encoder')->encodePassword($user, $user->getPassword());
+            $password = $this->passwordHasher->hashPassword($user, $user->getPassword());
             $user->setPassword($password);
 
             $this->entityManager->persist($user);
@@ -53,7 +54,7 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $password = $this->get('security.password_encoder')->encodePassword($user, $user->getPassword());
+            $password = $this->passwordHasher->hashPassword($user, $user->getPassword());
             $user->setPassword($password);
 
             $this->entityManager->flush();
