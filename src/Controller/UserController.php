@@ -23,7 +23,7 @@ class UserController extends AbstractController
         return $this->render('user/list.html.twig', ['users' => $this->entityManager->getRepository(User::class)->findAll()]);
     }
 
-    #[Route('/users/create', name: 'user_create')]
+    #[Route('/users/create', name: 'user_create', methods: ["POST", "GET"])]
     public function createAction(Request $request)
     {
         $user = new User();
@@ -31,11 +31,13 @@ class UserController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $password = $this->passwordHasher->hashPassword($user, $user->getPassword());
             $user->setPassword($password);
+            $user->setRoles([$request->get("user")["role"]]);
 
             $this->entityManager->persist($user);
+
             $this->entityManager->flush();
 
             $this->addFlash('success', "L'utilisateur a bien été ajouté.");
@@ -49,13 +51,14 @@ class UserController extends AbstractController
     #[Route('/users/{id}/edit', name: 'user_edit')]
     public function editAction(User $user, Request $request)
     {
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user, ['role' => $user->getRoles()[0]]);
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $password = $this->passwordHasher->hashPassword($user, $user->getPassword());
             $user->setPassword($password);
+            $user->setRoles([$request->get("user")["role"]]);
 
             $this->entityManager->flush();
 
