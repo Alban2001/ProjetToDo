@@ -25,6 +25,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     private ?string $prenom = null;
 
+    #[ORM\Column(length: 50)]
+    private ?string $username = null;
+
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
@@ -32,7 +35,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    private array $roles = [];
+    private array $roles = ['ROLE_USER'];
+
+    private ?string $role = null;
 
     /**
      * @var string The hashed password
@@ -45,6 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'OneUser')]
     private Collection $tasks;
+
 
     public function __construct()
     {
@@ -111,9 +117,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        // $roles[] = 'ROLE_USER';
 
-        return array_unique($roles);
+        return array_unique($this->roles);
     }
 
     /**
@@ -176,6 +182,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $task->setOneUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
 
         return $this;
     }

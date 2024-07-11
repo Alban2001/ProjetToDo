@@ -11,19 +11,11 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // Création d'un utilisateur par défaut (anonyme)
-        $userAnonyme = new User();
-        $userAnonyme->setNom("Anonyme");
-        $userAnonyme->setPrenom("Anonyme");
-        $userAnonyme->setEmail("anonyme@mail.fr");
-        $userAnonyme->setPassword("no password");
-        $userAnonyme->setRoles(["ROLE_USER"]);
-        $manager->persist($userAnonyme);
-
         // Création d'un utilisateur de type administrateur
         $admin = new User();
         $admin->setNom("Admin");
         $admin->setPrenom("Admin");
+        $admin->setUsername("admin");
         $admin->setEmail("admin@mail.fr");
         $admin->setPassword('$2y$10$EL0QLLEPVL6UT8ramWWrMe63sVv5/nhQha/wD3MwbKWkFBGjZaCly'); // Admin93498?!
         $admin->setRoles(["ROLE_ADMIN"]);
@@ -33,6 +25,7 @@ class AppFixtures extends Fixture
         $user = new User();
         $user->setNom("Alban");
         $user->setPrenom("VOIRIOT");
+        $user->setUsername("avoiriot");
         $user->setEmail("alban.voiriot@gmail.com");
         $user->setPassword('$2y$10$2xnQlqwwebeVeElvu3TLre1e1lA0A6TuG.Jk8DwpXVTLB7x2YDFnS'); // Alban93498?!
         $user->setRoles(["ROLE_USER"]);
@@ -46,7 +39,6 @@ class AppFixtures extends Fixture
             $task->setCreatedAt(new \DateTime());
             $tasksDone = [true, false];
             $task->setDone(array_rand($tasksDone));
-            $task->setOneUser($userAnonyme);
             $manager->persist($task);
         }
         $manager->flush();
