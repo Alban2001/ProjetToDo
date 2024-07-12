@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class TaskController extends AbstractController
 {
@@ -21,6 +22,7 @@ class TaskController extends AbstractController
         return $this->render('task/list.html.twig', ['tasks' => $this->entityManager->getRepository(Task::class)->findAll()]);
     }
 
+    #[IsGranted('ROLE_USER', 403, message: 'Vous n\'avez pas les droits pour ajouter une tâche')]
     #[Route('/tasks/create', name: 'task_create')]
     public function createAction(Request $request)
     {
@@ -42,6 +44,7 @@ class TaskController extends AbstractController
         return $this->render('task/create.html.twig', ['form' => $form->createView()]);
     }
 
+    #[IsGranted('ROLE_USER', 403, message: 'Vous n\'avez pas les droits pour modifier une tâche')]
     #[Route('/tasks/{id}/edit', name: 'task_edit')]
     public function editAction(Task $task, Request $request)
     {
@@ -63,6 +66,7 @@ class TaskController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER', 403, message: 'Vous n\'avez pas les droits pour marquer une tâche')]
     #[Route('/tasks/{id}/toggle', name: 'task_toggle')]
     public function toggleTaskAction(Task $task)
     {
@@ -74,13 +78,20 @@ class TaskController extends AbstractController
         return $this->redirectToRoute('task_list');
     }
 
+    #[IsGranted('ROLE_USER', 403, message: 'Vous n\'avez pas les droits pour supprimer une tâche')]
     #[Route('/tasks/{id}/delete', name: 'task_delete')]
     public function deleteTaskAction(Task $task)
     {
-        $this->entityManager->remove($task);
-        $this->entityManager->flush();
+        // Seul les administrateurs peuvent supprimer une tâche d'un utilisateur anonyme
+        // Les utilisateurs peuvent supprimer leurs propres tâches
+        if (($task->getOneUser() == null && $this->getUser()->getRoles() == 'ROLE_ADMIN') || ($task->getOneUser()->getUsername() == $this->getUser()->getUserIdentifier())) {
+            $this->entityManager->remove($task);
+            $this->entityManager->flush();
 
-        $this->addFlash('success', 'La tâche a bien été supprimée.');
+            $this->addFlash('success', 'La tâche a bien été supprimée.');
+        } else {
+            $this->addFlash('error', 'Vous ne pouvez pas supprimer cette tâche.');
+        }
 
         return $this->redirectToRoute('task_list');
     }
