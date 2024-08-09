@@ -39,6 +39,16 @@ class AppFixtures extends Fixture
             $task->setCreatedAt(new \DateTime());
             $tasksDone = [true, false];
             $task->setDone(array_rand($tasksDone));
+            $rdnUser = [1, 2, 3];
+            switch (array_rand($rdnUser)) {
+                case 1:
+                    $task->setOneUser($admin);
+                    break;
+                case 2:
+                    $task->setOneUser($user);
+                    break;
+                default:
+            }
             $manager->persist($task);
         }
         $manager->flush();
