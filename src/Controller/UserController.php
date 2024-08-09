@@ -11,7 +11,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_ADMIN', 403, message: 'Vous n\'avez pas les droits pour gérer les utilisateurs')]
+#[IsGranted('ROLE_ADMIN', statusCode: 403, message: 'Vous n\'avez pas les droits pour gérer les utilisateurs')]
 class UserController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly UserPasswordHasherInterface $passwordHasher)
@@ -20,13 +20,13 @@ class UserController extends AbstractController
     }
 
     #[Route('/users', name: 'user_list')]
-    public function listAction()
+    public function listUserAction()
     {
         return $this->render('user/list.html.twig', ['users' => $this->entityManager->getRepository(User::class)->findAll()]);
     }
 
     #[Route('/users/create', name: 'user_create', methods: ["POST", "GET"])]
-    public function createAction(Request $request)
+    public function CreateUserAction(Request $request)
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
@@ -51,7 +51,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{id}/edit', name: 'user_edit')]
-    public function editAction(User $user, Request $request)
+    public function editUserAction(User $user, Request $request)
     {
         $form = $this->createForm(UserType::class, $user, ['role' => $user->getRoles()[0]]);
 
