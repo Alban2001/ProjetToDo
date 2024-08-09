@@ -31,12 +31,12 @@
                     </div>
                     <div>
                         <form action="{{ path('task_toggle', {'id' : task.id }) }}">
-                            <button class="btn btn-success btn-sm pull-right">
+                            <button class="btn btn-success btn-sm pull-right btnMarquer">
                                 {% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée
                                 {% endif %}
                             </button>
                         </form>
-                        {% if task.OneUser is null b-and is_granted('ROLE_ADMIN') or task.OneUser.id == app.user.id%}
+                        {% if (task.OneUser is null and is_granted('ROLE_ADMIN')) or (task.OneUser and task.OneUser.id == app.user.id)%}
                             <form action="{{ path('task_delete', {'id' : task.id }) }}">
                                 <button class="btn btn-danger btn-sm pull-right">Supprimer</button>
                             </form>
