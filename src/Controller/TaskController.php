@@ -84,7 +84,7 @@ class TaskController extends AbstractController
     {
         // Seul les administrateurs peuvent supprimer une tâche d'un utilisateur anonyme
         // Les utilisateurs peuvent supprimer leurs propres tâches
-        if (($task->getOneUser() == null && $this->getUser()->getRoles() == 'ROLE_ADMIN') || ($task->getOneUser()->getId() == $this->getUser()->getId())) {
+        if (($task->getOneUser() == null && $this->getUser()->getRoles()[0] == 'ROLE_ADMIN') || ($task->getOneUser() !== null && $task->getOneUser()->getId() == $this->getUser()->getId())) {
             $this->entityManager->remove($task);
             $this->entityManager->flush();
 
